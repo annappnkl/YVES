@@ -4,7 +4,7 @@
 
 This project started in June 2022 and was completed in February 2023
 
-YVES was developed as part of my Bachelor's thesis at the Ludwig-Maximilians-Universität (LMU) Munich, under the Human-Centered Ubiquitous Media group.
+YVES was developed as part of my Bachelor's thesis at the Ludwig-Maximilians-Universität (LMU) Munich, under the Human-Centered Ubiquitous Media group, alongside Prof. Dr. Albrecht Schmidt, Prof. Dr. Sven Meyer, Dr. Maximiliane Windl, Dr. Sebastian Feger and Dr. Jakob Karolus.
 It was evaluated at a public prelimenary study at the Open Lab Day event at the LMU Munich. It was later on tested and placed in the Copernicus Science Center in Warsaw, Poland. Research results of that exhibition demonstrated that playful interaction successfully improved non-experts’ understanding of AI. Finally, it was further developed by the Ubiquitous Media group in 2023, without me, and placed in the Deutsches Museum, Munich, to further teach young people about AI.
 
 ## About
