@@ -1,0 +1,26 @@
+<annotation>
+	<folder>collectedimages</folder>
+	<filename>12.jpeg</filename>
+	<path>/Users/annamilenapapanakli/Documents/Try5/TFODCourse/Tensorflow/workspace/images/collectedimages/12.jpeg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>696</width>
+		<height>690</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>car</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>23</xmin>
+			<ymin>425</ymin>
+			<xmax>496</xmax>
+			<ymax>662</ymax>
+		</bndbox>
+	</object>
+</annotation>

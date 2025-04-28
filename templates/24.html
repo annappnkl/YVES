@@ -1,0 +1,30 @@
+{% extends "loading-bar.html" %}
+{% block page_name %}24{% endblock %}
+{% block page_heading %}Processing images
+{% endblock %}
+
+
+{% block row2 %}
+<div id="cta" class="column d-flex justify-content-center">
+    <form action="{{ url_for('handle_forms') }}" method="post">
+        <p>
+            <input type="hidden" name="answer" value="25">
+        </p>
+        <p>
+            <button id="button" type="submit" class="btn btn-light" style="display: none;">
+                <div>
+                    <img style="height:64px; padding: 12px" src="../static/arrow.svg">
+                </div>
+            </button>
+        </p>
+    </form>
+</div>
+{% endblock %}
+
+{% block script2 %}
+<script>updateBar();</script>    
+
+{% endblock %}
+
+
+

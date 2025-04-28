@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+{% block page_name %}12{% endblock %}
+
+{% block page_block1 %}
+<!--
+    <style>
+    .video {
+  width: 500px;;
+  height: 375px;;
+  position: absolute;
+  top: 100;
+  left: 0;
+}
+
+.canvas {
+  width: 500px;;
+  height: 375px;;
+  position: absolute;
+  background-color:rgba(81, 255, 0, 0);
+  top: 100;
+  left: 0;
+  z-index: 10;
+}
+
+#streamElement {
+    position: absolute;
+    left: 25%;
+
+}
+</style>
+
+-->
+
+<div class="container" id="videoStreamDiv" style="position: relative; margin-left: 20%; margin-top: 16px;">
+    <video class="video" id="videoStreamElement" autoplay="true" ></video>
+    <canvas class="canvas" id="videoStreamCanvas"></canvas>
+</div>
+
+<div margin-left: 40px; margin-top: 120px;>
+    <canvas hidden id="hiddenCanvas"></canvas>
+</div>
+
+{% endblock %}
+
+
+{% block page_block2 %}
+<div class="column">
+    <h4 id="detectedObjectLabel" style="margin-top: 24px;"></h4>
+
+    <div class="progress" id="progressBarDiv"  style=" display: none;">
+        <div id="progressBar"  class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 0%;  display: none;"></div>
+    </div>
+
+</div>
+
+<h3 id="detectionOn" hidden style="display:none"></h3>
+
+
+{% endblock %}
+
+{% block page_cta %}
+<button id="getMoreInfo" class="btn btn-outline-primary" style="margin-left: 100px; display:none; padding: 10px 18px; font-size: 20px; font-family: 'Montserrat', sans-serif; font-weight: 500;">
+    Get more Info
+</button>
+{% endblock %}
+
+
+{% block page_block3 %}
+<div id="imagesDiversified" style="display: none; margin-top: 32px;">
+    <div class="row card-deck">             
+        <div class="card" style="width: 160px">
+            <a class="card-block stretched-link text-decoration-none"></a> 
+                <img class="card-img-top" id="mirror_at_x" style="height: 120px;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Mirrored X</h5>
+                </div>
+        </div>
+        <div class="card" style="width: 160px">
+            <a class="card-block stretched-link text-decoration-none" id="mirrored at y"></a> 
+                <img class="card-img-top" id="mirror_at_y" style="height: 120px;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Mirrored Y</h5>
+                </div>
+        </div>  
+        <div class="card" style="width: 160px">
+            <a class="card-block stretched-link text-decoration-none" id="rotated 90"></a>
+                <img class="card-img-top" id="rotate_90" style="height: 120px; width: 160;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Rotated 90°</h5>
+                </div>
+        </div>
+        <div class="card" style="width: 160px">
+            <a class="card-block stretched-link text-decoration-none" id="rotated 180"></a>
+                <img class="card-img-top" id="rotate_180" style="height: 120px;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Rotated 180°</h5>
+                </div>
+        </div>
+        <div class="card" style="width: 160px">
+            <a class="card-block stretched-link text-decoration-none" id="zoomed"></a>
+                <img class="card-img-top" id="zoomed_in" style="height: 120px;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Zoom in</h5>
+                </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_block %}
+<div id="divStartTraining" style="display: none; margin-top: 32px;">
+    <form action="{{ url_for('handle_training') }}" method="post">
+        <p>
+            <button type="submit" class="btn btn-outline-primary" style="padding: 10px 18px; font-size: 20px; font-family: 'Montserrat', sans-serif; font-weight: 500;">
+               Start Training
+            </button>
+        </p>
+    </form>
+</div>
+
+
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+
+    // STREAMING
+
+    let subheading = document.getElementById('subheading');
+    subheading.style.height = "120px";
+    subheading.innerHTML = "Test my learning by moving it somewhere else!";
+
+    
+    var video = document.getElementById("videoStreamElement")
+    
+        if (navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+
+            video.srcObject = stream;
+
+            })
+
+            .catch(function (error) {
+
+            console.log("Something went wrong!");
+
+            });
+    }
+
+    // TEMPORARILY SAVE AN IMAGE ON THIS CANVAS
+    let hiddenCanvas = document.getElementById('hiddenCanvas');
+    var getMoreInfo = document.getElementById('getMoreInfo');
+    var detectionOn = document.getElementById('detectionOn');
+    let rounds = 0;
+
+    // SEND A FRAME TO SERVER EVERY MS
+    video.addEventListener("play", detectObject);
+
+    function detectObject(){
+        video._updateInterval = setInterval(() => {
+            if (detectionOn.style.display == "block"){
+                video.pause()
+            } else {
+                hiddenCanvas.getContext('2d').drawImage(video, 0, 0, 450, 450);
+                let imgURL = hiddenCanvas.toDataURL('image/jpg', 1);
+                fetchText("detect_cropped_image", {"image":imgURL})
+                }
+        }, 1000);
+    }
+
+    
+
+     // TRANSPARENT CANVAS ON TOP OF VIDEO, TO DRAW ONTO
+    var videoStreamCanvas = document.getElementById("videoStreamCanvas");
+    var videoStreamCanvas_CTX = videoStreamCanvas.getContext("2d");
+
+    // DIVERSIFIED IMAGES
+    var mirror_at_x= document.getElementById("mirror_at_x");
+    var mirror_at_y= document.getElementById("mirror_at_y");
+    var rotate_90= document.getElementById("rotate_90");
+    var rotate_180= document.getElementById("rotate_180");
+    var zoomed_in= document.getElementById("zoomed_in");
+
+    // BUTTON TO REDIRECT TO PAGE 13
+    var divStartTraining= document.getElementById("divStartTraining");
+
+
+    // SEND AND FETCH INFORMATION TO
+    let fetch_from_url = '/getinformation';
+
+    let position_x;
+    let position_y;
+    var progressBar = document.getElementById("progressBar");
+
+    async function delay(time) {
+        return new Promise(resolve => setTimeout(resolve, time));
+    }
+
+    var counter = 1;
+
+    async function updateBar(flip_x, flip_y, rot90, rot180, zoomed){
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+        progressBar.style.width = "20%";
+        mirror_at_x.src = "data:image/png;base64," +  flip_x;
+        await new Promise(resolve => setTimeout(resolve, 600));
+        progressBar.style.width = "40%";
+        mirror_at_y.src = "data:image/png;base64," +  flip_y;
+        await new Promise(resolve => setTimeout(resolve, 400));
+        progressBar.style.width = "60%";
+        rotate_90.src = "data:image/png;base64," +  rot90;
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        progressBar.style.width = "80%";
+        rotate_180.src = "data:image/png;base64," +  rot180;
+        await new Promise(resolve => setTimeout(resolve, 300));
+        progressBar.style.width = "100%";
+        zoomed_in.src = "data:image/png;base64," +  zoomed;
+
+        divStartTraining.style.display = "block";
+
+    }
+
+
+async function fetchText(msg_type, data){
+        
+    console.log("REQUEST SENT")
+
+    fetch(fetch_from_url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+            
+        body: JSON.stringify({"test":"test1", "type":msg_type, "data":data})
+        
+    }).then(function(response) {
+
+            return response.json();
+
+    }).then(response => {
+        
+        console.log("RESPONSE RECEIVED")
+        console.log(response);
+
+        msg_type = response["type"];
+        data = response["data"];
+
+        if (msg_type == "detection"){
+
+            x = response.x;
+            y = response.y;
+            x_old = response.x_old;
+            y_old = response.y_old;
+
+            confidence = response.confidence;
+
+            if (x > x_old+20 || x < x_old-20 || y > y_old+15 || y < y_old-15 ){
+
+                console.log("POSITION OF DETECTION CHANGED")
+                object_moved()
+
+            } else { 
+                
+                    console.log(document.getElementById("DetectionText") )
+                if (document.getElementById("DetectionText") == null){
+                    var svgNS = "http://www.w3.org/2000/svg";
+                    var newText = document.createElementNS(svgNS,"text");
+                    newText.setAttributeNS(null,"x",x);     
+                    newText.setAttributeNS(null,"y",y);
+                    newText.setAttributeNS(null,"fill","#FFFFFF"); 
+                    newText.setAttributeNS(null,"font-size","100");
+                    newText.setAttributeNS(null,"id","DetectionText"); 
+
+                    var textNode = document.createTextNode(userIn);
+                    newText.appendChild(textNode);
+                    document.getElementById("videoStreamSVG").appendChild(newText);
+                } else {
+                    var newText = document.getElementById("DetectionText");
+                    newText.setAttributeNS(null,"x",x);     
+                    newText.setAttributeNS(null,"y",y); 
+                    newText.innerHTML = userIn;
+                }
+                    
+            }
+            
+
+        } else if (msg_type == "diversified_images"){
+            console.log("RECEIVING DIVERSIFIED IMAGES")
+
+
+            flip_x = data[0];
+            flip_y = data[1];
+            rot90 = data[2];
+            rot180 = data[3];
+            zoomed = data[4];
+            updateBar(flip_x, flip_y, rot90, rot180, zoomed);
+
+
+        } else if (msg_type == "capture"){
+            // DRAW IMAGE ONTO CANVAS
+        } else if (msg_type == "success"){
+            console.log(data)
+        }
+
+    })
+        .catch(error => {
+        console.log(error);
+    });
+
+}
+
+    var detectedObjectLabel = document.getElementById('detectedObjectLabel');
+    var imagesDiversified = document.getElementById('imagesDiversified');
+    var videoStreamDiv = document.getElementById('videoStreamDiv');
+
+    var heading = document.getElementById('heading');
+
+    function draw_on_canvas(x, y, userInput, confidence){
+        videoStreamCanvas_CTX.clearRect(0, 0, videoStreamCanvas.width, videoStreamCanvas.height);
+        
+        videoStreamCanvas_CTX.font = "16px Arial";
+        videoStreamCanvas_CTX.fillStyle = "#36d9a8";
+        myText = userInput + " " + confidence;
+        videoStreamCanvas_CTX.fillText(myText, x, y);
+        
+        detectedObjectLabel.innerHTML = userInput;
+        detectedObjectLabel.style.display = "block";
+        
+        getMoreInfo.style.display = "none";
+        subheading.innerHTML = "Test my learning by moving it somewhere else!";
+    };
+
+    function object_moved(){
+        detectionOn.style.display = "block";
+
+        videoStreamCanvas_CTX.clearRect(0, 0, videoStreamCanvas.width, videoStreamCanvas.height);
+        document.removeEventListener("play", detectObject);
+
+        subheading.innerHTML = "You see.. I get confused when you move it around.<p> I only recognise it at the position you put it in at the beginning. <br> I'll need more information to recognise it somewhere else.";
+        
+        detectedObjectLabel.style.display = "none";
+        getMoreInfo.style.display = "block";
+    }
+
+    getMoreInfo.addEventListener("click", function(){   
+
+        progressBar.style.display = "block";
+        progressBarDiv.style.display = "block";
+        
+        video.pause();
+        document.removeEventListener('play', detectObject);
+
+        imagesDiversified.style.display = "block";
+        videoStreamDiv.style.display = "none";
+        getMoreInfo.style.display = "none";
+
+        detectedObjectLabel.style.display = "none";
+        subheading.style.height = "80px";
+        subheading.innerHTML = "I can Rotate, Flip, Mirror and Translate the image you took! <br> If I have more & different images of the object, I can train to recognise it <br> in more than just one scenario. Train me to test it!";
+        heading.innerHTML = "Calculating..";
+        
+        fetchText("calculate", "get_more_images");
+    });
+
+    </script>
+
+{% endblock %}

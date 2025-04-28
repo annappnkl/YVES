@@ -1,0 +1,60 @@
+{% extends "questionnaire.html" %}
+{% block page_name %}LOADING BAR{% endblock %}
+
+
+{% block row1 %}
+<div class="column d-flex justify-content-center">
+    <div id="progressBarDiv" class="progress" style="width: 600px; height: 48px; margin-top: 32px; font-size: 24px;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" role="progressbar" aria-valuenow="100" aria-valuemin="100" aria-valuemax="100" style="width: 0%"></div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block script %}
+<script>
+    var progressBar = document.getElementById("progressBar");
+    var button = document.getElementById("button");
+
+    async function updateBar(){
+                
+        await new Promise(resolve => setTimeout(resolve, 500));
+        progressBar.style.width = "3%";
+        progressBar.innerHTML = "analysing..";
+        await new Promise(resolve => setTimeout(resolve, 600));
+        progressBar.style.width = "10%";
+        progressBar.innerHTML = "analysing..";
+        await new Promise(resolve => setTimeout(resolve, 400));
+        progressBar.style.width = "18%";
+        progressBar.innerHTML = "analysing..";
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        progressBar.style.width = "25%";
+        progressBar.innerHTML = "matching patterns..";
+        await new Promise(resolve => setTimeout(resolve, 300));
+        progressBar.style.width = "40%";
+        progressBar.innerHTML = "matching patterns..";
+        await new Promise(resolve => setTimeout(resolve, 600));
+        progressBar.style.width = "50%";
+        progressBar.innerHTML = "revising..";
+        await new Promise(resolve => setTimeout(resolve, 600));
+        progressBar.style.width = "55%";
+        progressBar.innerHTML = "revising..";
+        await new Promise(resolve => setTimeout(resolve, 300));
+        progressBar.style.width = "70%";
+        progressBar.innerHTML = "tickling the backend..";
+        await new Promise(resolve => setTimeout(resolve, 500));
+        progressBar.style.width = "85%";
+        progressBar.innerHTML = "tickling the backend..";
+        await new Promise(resolve => setTimeout(resolve, 700));
+        progressBar.style.width = "90%";
+        progressBar.innerHTML = "almost done..";
+        await new Promise(resolve => setTimeout(resolve, 400));
+        progressBar.style.width = "100%";
+        progressBar.innerHTML = "Done!";
+        
+        button.style.display = "block";
+    }
+</script>
+{% block script2 %}
+{% endblock %}
+{% endblock %}

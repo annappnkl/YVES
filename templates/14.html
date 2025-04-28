@@ -1,0 +1,48 @@
+{% extends "questionnaire.html" %}
+{% block page_name %}14{% endblock %}
+
+{% block row1 %}
+    <form action="{{ url_for('questionnaire1') }}" method="post">
+        <p>
+            <input type="hidden" name="answer" value="1-A">
+        </p>
+        <p>
+            <button type="submit" class="btn btn-light buttonStyle">
+                {% block A %}
+                1-A
+                {% endblock %}
+            </button>
+        </p>
+    </form>
+{% endblock %}
+
+{% block row2 %}
+    <form action="{{ url_for('questionnaire1') }}" method="post">
+        <p>
+            <input type="hidden" name="answer" value="1-B">
+        </p>
+        <p>
+            <button type="submit" class="btn btn-light buttonStyle">
+                {% block B %}
+                1-B
+                {% endblock %}
+            </button>
+        </p>
+    </form>
+
+{% endblock %}
+
+{% block row3 %} 
+     <form action="{{ url_for('questionnaire1') }}" method="post">
+        <p>
+            <input type="hidden" name="answer" value="1-C">
+        </p>
+        <p>
+            <button type="submit" class="btn btn-light buttonStyle">
+                {% block C %}
+                1-C
+                {% endblock %}
+            </button>
+        </p>
+    </form>
+{% endblock %}

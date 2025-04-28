@@ -1,0 +1,12 @@
+session_values.txt
+*.cfg
+*.weights
+*.names
+*.DS_Store
+*.pb
+*.spec
+Tensorflow/images/
+Tensorflow/pre-trained-models/
+questionnaire/
+build/
+dist/

@@ -1,0 +1,18 @@
+{% extends "questionnaire.html" %}
+{% block page_name %}End{% endblock %}
+
+{% block row1 %}
+<form action="{{ url_for('handle_forms') }}" method="post">
+    <p>
+        <input type="hidden" name="answer" value="restart">
+
+    </p>
+    <p>
+        <button id="button" type="submit" class="btn btn-light">
+            <div>
+                <img style="height:56px; padding: 6px" src="../static/arrow.svg">
+            </div>
+        </button>
+    </p>
+</form>
+{% endblock %}

@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block page_name %}13{% endblock %}
+
+{% block page_block1 %}
+
+
+<h4 id="detectedObjectLabel" style="margin-top: 24px;"></h4>
+  
+<div class="container" id="videoStreamDiv" style="position: relative; border-radius: 8px; display: none;">
+    <video class="video" id="videoStreamElement" autoplay="true" ></video>
+    <canvas class="canvas" id="videoStreamCanvas"></canvas>
+    <svg class="canvas" id="videoStreamSVG"></svg>
+</div>
+
+
+<div>
+    <canvas hidden id="hiddenCanvas" width="450px" height="450px"></canvas>
+</div>
+
+{% endblock %}
+
+{% block page_block3 %}
+
+<div id="progressBarDiv" class="progress" style="width: 600px; height: 48px; margin-top: 32px; font-size: 24px;">
+    <div class="progress-bar progress-bar-striped progress-bar-animated" id="progressBar" role="progressbar" aria-valuenow="100" aria-valuemin="100" aria-valuemax="100" style="width: 0%"></div>
+</div>
+
+{% endblock %}
+
+{% block other %}
+
+<div id="divStartQuestions" style="display: none; margin-top: 32px;">
+    <form action="{{ url_for('questionnaire1') }}" method="post">
+        <p>
+            <input type="hidden" name="answer" value="0">
+        </p>
+        <p>
+            <button type="submit" class="btn btn-light buttonStyle">
+               Next
+            </button>
+        </p>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+
+    
+    // STREAMING
+    var video = document.getElementById("videoStreamElement")
+    
+        if (navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+                width: {max: 1024},
+                height: {max: 1024},
+                aspectRatio: {ideal: 1}
+            }} )
+            .then(function (stream) {
+            video.srcObject = stream;
+
+            })
+
+            .catch(function (error) {
+
+            console.log("Something went wrong!");
+
+            });
+    }
+
+    video.addEventListener("play", detectObject);
+
+    function detectObject(){
+        video._updateInterval = setInterval(() => {
+                hiddenCanvas.getContext('2d').drawImage(video, 0, 0, 450, 450);
+                let imgURL = hiddenCanvas.toDataURL('image/jpg', 1);
+                fetchText("detect2", {"image":imgURL})
+        }, 1000);
+    }
+
+    // TRANSPARENT CANVAS ON TOP OF VIDEO, TO DRAW ONTO
+    var videoStreamCanvas = document.getElementById("videoStreamCanvas");
+    var videoStreamCanvas_CTX = videoStreamCanvas.getContext("2d");
+
+    // SEND AND FETCH INFORMATION TO
+    let fetch_from_url = '/testFetch';
+
+    async function fetchText(type, msg){
+        
+        console.log("REQUEST SENT")
+    
+        fetch(fetch_from_url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+                
+            body: JSON.stringify({"requestType":type, "requestMsg":msg})
+            
+        }).then(function(response) {
+    
+                return response.json();
+    
+        }).then(response => {
+            response_type = response.responseType;
+            response_msg = response.responseMsg
+
+            console.log("RESPONSE RECEIVED")
+            console.log(response_type)
+            console.log(response_msg)
+
+
+        if (response_type == "detection"){
+
+            x = response_msg.x;
+            y = response_msg.y;
+            x_old = response_msg.x_old;
+            y_old = response_msg.y_old;
+            confidence = response_msg.custom_detection_confidence;
+            userInput = response_msg.userInput
+            percentage = Math.trunc(confidence*100)
+            customDet = response_msg.custom_detection_name
+            firstDet = response_msg.firstDet
+
+            if (percentage > 100){
+                percentage = 100;
+            }
+            
+            labelText = userInput + " " + percentage + " %";         
+            
+            if (customDet == firstDet){
+                drawOnCanvas(labelText, x, y);
+            }  else {
+                //labelText = userInput + " " + percentage + " %";
+                //drawOnCanvas(labelText, x, y);
+                removeFromCanvas();
+            }
+        }
+
+        })
+        .catch(error => {
+        console.log(error);
+    });
+
+}
+
+function drawOnCanvas(labelText, x, y){
+    x = x-48
+    y = y-100
+
+    console.log(document.getElementById("DetectionText"))
+        
+    if (document.getElementById("DetectionText") == null){
+        var svgNS = "http://www.w3.org/2000/svg";
+
+        // LABEL AND CONFIDENCE
+        var newText = document.createElementNS(svgNS,"text");
+        newText.setAttributeNS(null,"x",x);     
+        newText.setAttributeNS(null,"y",y);
+        newText.setAttributeNS(null,"fill","#000000"); 
+        newText.setAttributeNS(null,"font-size","28");
+        newText.setAttributeNS(null,"id","DetectionText"); 
+
+        // BORDER
+        var newRect = document.createElementNS(svgNS,"rect");
+        newRect.setAttributeNS(null,"x",x-8);     
+        newRect.setAttributeNS(null,"y",y);
+        newRect.setAttributeNS(null,"width","220"); 
+        newRect.setAttributeNS(null,"height","220"); 
+        newRect.setAttributeNS(null,"fill-opacity","0");
+        newRect.setAttributeNS(null,"stroke","#FFFFFF");
+        newRect.setAttributeNS(null,"stroke-width","3");
+        newRect.setAttributeNS(null, "stroke-dasharray", "0,220,440" );    
+        newRect.setAttributeNS(null,"id","DetectionRect");
+
+        // BORDER
+        var newRect2 = document.createElementNS(svgNS,"rect");
+        newRect2.setAttributeNS(null,"x",x-8);     
+        newRect2.setAttributeNS(null,"y",y-44);
+        newRect2.setAttributeNS(null,"width","220"); 
+        newRect2.setAttributeNS(null,"height","50"); 
+        newRect2.setAttributeNS(null,"fill","#FFFFFF");
+        newRect2.setAttributeNS(null,"stroke","#FFFFFF");
+        newRect2.setAttributeNS(null,"stroke-width","3"); 
+        newRect2.setAttributeNS(null,"id","DetectionRect2");
+        
+
+        var textNode = document.createTextNode(labelText);
+        newText.appendChild(textNode);
+        document.getElementById("videoStreamSVG").appendChild(newRect2);
+        document.getElementById("videoStreamSVG").appendChild(newText);
+        document.getElementById("videoStreamSVG").appendChild(newRect);
+        
+    } else {
+        var newText = document.getElementById("DetectionText");
+        newText.setAttributeNS(null,"x",x);     
+        newText.setAttributeNS(null,"y",y); 
+        newText.innerHTML = labelText;
+
+        var newRect = document.getElementById("DetectionRect");
+        newRect.setAttributeNS(null,"x",x-8);     
+        newRect.setAttributeNS(null,"y",y); 
+
+        var newRect2 = document.getElementById("DetectionRect2");
+        newRect2.setAttributeNS(null,"x",x-8);     
+        newRect2.setAttributeNS(null,"y",y-44); 
+    }
+}
+
+
+    var videoStreamDiv = document.getElementById('videoStreamDiv');
+    var progressBar = document.getElementById("progressBar");
+    var progressBarDiv = document.getElementById("progressBarDiv");
+    var heading = document.getElementById("heading");
+    var subheading = document.getElementById("subheading");
+    var divStartQuestions = document.getElementById("divStartQuestions");
+
+    
+    async function updateBar(){
+             
+            await new Promise(resolve => setTimeout(resolve, 500));
+            progressBar.style.width = "3%";
+            progressBar.innerHTML = "analysing..";
+            await new Promise(resolve => setTimeout(resolve, 600));
+            progressBar.style.width = "10%";
+            progressBar.innerHTML = "analysing..";
+            await new Promise(resolve => setTimeout(resolve, 400));
+            progressBar.style.width = "18%";
+            progressBar.innerHTML = "analysing..";
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            progressBar.style.width = "25%";
+            progressBar.innerHTML = "matching patterns..";
+            await new Promise(resolve => setTimeout(resolve, 300));
+            progressBar.style.width = "40%";
+            progressBar.innerHTML = "matching patterns..";
+            await new Promise(resolve => setTimeout(resolve, 600));
+            progressBar.style.width = "50%";
+            progressBar.innerHTML = "revising..";
+            await new Promise(resolve => setTimeout(resolve, 600));
+            progressBar.style.width = "55%";
+            progressBar.innerHTML = "revising..";
+            await new Promise(resolve => setTimeout(resolve, 300));
+            progressBar.style.width = "70%";
+            progressBar.innerHTML = "tickling the backend..";
+            await new Promise(resolve => setTimeout(resolve, 500));
+            progressBar.style.width = "85%";
+            progressBar.innerHTML = "tickling the backend..";
+            await new Promise(resolve => setTimeout(resolve, 700));
+            progressBar.style.width = "90%";
+            progressBar.innerHTML = "almost done..";
+            await new Promise(resolve => setTimeout(resolve, 400));
+            progressBar.style.width = "100%";
+            progressBar.innerHTML = "done!";
+
+            videoStreamDiv.style.display = "block";
+            progressBarDiv.style.display = "none"
+            heading.innerHTML = "Test me!";
+            subheading.style.display = "none";
+            divStartQuestions.style.display = "block";
+        
+        }
+        
+        updateBar();
+
+    function removeFromCanvas(){
+        if (document.getElementById("DetectionText") != null){
+            var newText = document.getElementById("DetectionText");
+            document.getElementById("videoStreamSVG").removeChild(newText)
+
+            var newRect = document.getElementById("DetectionRect");
+            document.getElementById("videoStreamSVG").removeChild(newRect)
+
+            var newRect2 = document.getElementById("DetectionRect2");
+            document.getElementById("videoStreamSVG").removeChild(newRect2)
+    };
+    }
+
+</script>
+
+{% endblock %}
+
+

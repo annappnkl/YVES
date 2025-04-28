@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+{% block page_name %}11{% endblock %}
+
+{% block page_block1 %}
+<div class="container" id="videoStreamDiv" style="position: relative; border-radius: 8px;">
+    <video class="video" id="videoStreamElement" autoplay="true" ></video>
+        <canvas class="canvas" id="videoStreamCanvas"></canvas>
+        <svg class="canvas" id="videoStreamSVG"></svg>
+</div>
+{% endblock %}
+
+{% block page_block3 %}
+<div>
+    <canvas hidden id="hiddenCanvas" width="450px" height="450px"></canvas>
+    <canvas class="canvasWithKeyboard" id="canvasWithKeyboard" width="450px" height="450px" style="display: none; position: relative;"></canvas>
+    <div id="box" style="display: none;" ></div>
+</div>
+
+{% endblock %}
+
+
+{% block page_bottom %}
+<div class="baseKeyboard" id="keyboard" style="display: none;">
+    <div class="line1">
+        <span id="key" name="Q">Q</span>
+        <span id="key" name="W">W</span>
+        <span id="key" name="E">E</span>
+        <span id="key" name="R">R</span>
+        <span id="key" name="T">T</span>
+        <span id="key" name="Y">Y</span>
+        <span id="key" name="U">U</span>
+        <span id="key" name="I">I</span>
+        <span id="key" name="O">O</span>
+        <span id="key" name="P">P</span>
+    </div>
+    <div class="line2">
+        <span id="key" name="A">A</span>
+        <span id="key" name="S">S</span>
+        <span id="key" name="D">D</span>
+        <span id="key" name="F">F</span>
+        <span id="key" name="G">G</span>
+        <span id="key" name="H">H</span>
+        <span id="key" name="J">J</span>
+        <span id="key" name="K">K</span>
+        <span id="key" name="L">L</span>
+    </div>
+    <div class="line3">
+        <span name="Shift"><svg name="Shift" enable-background="new 0 0 500 500" id="shift" version="1.1" viewBox="0 0 500 500" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path clip-rule="evenodd" d="M433.704,237.465c4.456,6.086,7.092,13.539,7.092,21.622  c0,20.079-16.266,36.341-36.344,36.341h-36.341c-9.991,0-18.173,8.18-18.173,18.172v109.025c0,20.079-16.262,36.341-36.341,36.341  H186.4c-20.079,0-36.34-16.262-36.34-36.341V313.6c0-9.992-8.181-18.172-18.172-18.172H95.547  c-20.079,0-36.342-16.262-36.342-36.341c0-8.083,2.635-15.536,7.08-21.622L217.747,54.388c17.807-17.808,46.695-17.808,64.505,0  L433.704,237.465z"/></svg></span>
+        <span id="key" name="Z">Z</span>
+        <span id="key" name="X">X</span>
+        <span id="key" name="C">C</span>
+        <span id="key" name="V">V</span>
+        <span id="key" name="B">B</span>
+        <span id="key" name="N">N</span>
+        <span id="key" name="M">M</span>
+        <span name="Back"><svg name="Back" baseProfile="tiny" id="backspace" version="1.2" viewBox="0 0 24 24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M19.5,5h-10C8.234,5,6.666,5.807,5.93,6.837L3.32,10.49c-0.642,0.898-1.182,1.654-1.199,1.679  C2,12.344,1.999,12.661,2.124,12.833c0.023,0.033,0.555,0.777,1.188,1.664l2.619,3.667C6.666,19.193,8.233,20,9.5,20h10  c1.379,0,2.5-1.122,2.5-2.5v-10C22,6.122,20.879,5,19.5,5z M17.207,14.793c0.391,0.391,0.391,1.023,0,1.414  C17.012,16.402,16.756,16.5,16.5,16.5s-0.512-0.098-0.707-0.293L13.5,13.914l-2.293,2.293C11.012,16.402,10.756,16.5,10.5,16.5  s-0.512-0.098-0.707-0.293c-0.391-0.391-0.391-1.023,0-1.414l2.293-2.293l-2.293-2.293c-0.391-0.391-0.391-1.023,0-1.414  s1.023-0.391,1.414,0l2.293,2.293l2.293-2.293c0.391-0.391,1.023-0.391,1.414,0s0.391,1.023,0,1.414L14.914,12.5L17.207,14.793z"/></svg></span>
+    </div>
+    <div class="line4">
+        <span id="space" name="Space">Space</span>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block other %}
+<h4 id="detectedObjectLabel" style="margin-top: 24px;"></h4>
+
+<div style="margin-top: 160px;">
+    <button id="takeImage" class="btn btn-light buttonStyle">
+        <div>
+            <img style="width: 80px; height:80px; padding: 12px" src="../static/camera1.svg">
+        </div>
+        <div>
+            Take Image        
+        </div>
+       
+    </button>
+</div>
+
+<div id="submitForm" style="display: none; justify-content: center; margin-top: 20px; margin-right: 80px;">
+    <form action="{{ url_for('handle_form') }}" method="post">
+        <p>
+            <!-- <input autocomplete="false" type="text" name="form_label" style="height: 40px;"> -->
+            <textarea id="textareaInput" rows="1" cols="20" maxlength="20" type="text" name="form_label"></textarea>
+        </p>
+        <p>
+            <button type="submit" id="snap" class="btn btn-light buttonStyle">
+               Done
+            </button>
+        </p>
+    </form>
+</div>
+
+
+{% endblock %}
+
+{% block script %}
+
+
+<script>
+
+
+    function keyInput(e) {
+        const textarea = document.getElementById('textareaInput');
+        textarea.value += e.target.innerHTML;
+
+        const rows = document.querySelectorAll('#key');
+        rows.forEach(span => {
+            span.innerHTML = span.innerHTML.toLowerCase();
+        });
+    }
+
+    function keyBackspace(e) {
+        const textarea = document.getElementById('textareaInput');
+        textarea.value = textarea.value.slice(0, -1);
+    }
+    var backKey = document.getElementById('backspace')
+    backKey.addEventListener('click',keyBackspace)
+
+
+    function keySpace(e) {
+        const textarea = document.getElementById('textareaInput');
+        textarea.value += " ";
+    }
+    var spaceKey = document.getElementById('space')
+    spaceKey.addEventListener('click',keySpace)
+
+
+    function keyShift(e) {
+        const rows = document.querySelectorAll('#key');
+        rows.forEach(span => {
+            span.innerHTML = span.innerHTML.toUpperCase();
+        });
+    }
+    var backKey = document.getElementById('shift')
+    backKey.addEventListener('click',keyShift)
+    
+    const rows = document.querySelectorAll('#key');
+    rows.forEach(row => row.addEventListener('click',keyInput));
+    rows.forEach(span => {
+        span.innerHTML = span.innerHTML.toLowerCase();
+    });
+    
+
+    // STREAMING
+    var video = document.getElementById("videoStreamElement")
+    
+        if (navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+                width: {max: 1024},
+                height: {max: 1024},
+                aspectRatio: {ideal: 1}
+            }} )
+            .then(function (stream) {
+            video.srcObject = stream;
+
+            })
+
+            .catch(function (error) {
+
+            console.log("Something went wrong!");
+            console.log(error);
+
+            });
+    }
+
+    var svgNS = document.getElementById("svgNS");
+    var box = document.getElementById("box");
+
+    // SEND A FRAME TO SERVER EVERY 8MS
+    video.addEventListener('play', () => {
+    video._updateInterval = setInterval(() => {
+        hiddenCanvas.getContext('2d').drawImage(video, 0, 0, 450, 450);
+        let imgURL = hiddenCanvas.toDataURL('image/jpg', 1);
+        if (box.style.display = "none"){
+            fetchText("detect", {"image":imgURL, "fileName":"image_capture.jpg"})
+        }
+        }, 1000);
+    }, true);
+
+
+    // TEMPORARILY SAVE AN IMAGE ON THIS CANVAS
+    let hiddenCanvas = document.getElementById('hiddenCanvas');
+
+    // TRANSPARENT CANVAS ON TOP OF VIDEO, TO DRAW ONTO
+    var videoStreamCanvas = document.getElementById("videoStreamCanvas");
+    var videoStreamCanvas_CTX = videoStreamCanvas.getContext("2d");
+
+
+    // SEND AND FETCH INFORMATION TO
+    let fetch_from_url = '/testFetch';
+
+    async function fetchText(requestType, requestMsg){
+
+    fetch(fetch_from_url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({"test":"test1", "requestType":requestType, "requestMsg":requestMsg})
+    }).then(function(response) {
+        console.log("REQUEST SENT")
+
+        return response.json();
+    }).then(response => {
+        console.log("RESPONSE RECEIVED BACK")
+        console.log(response);
+
+        responseType = response.responseType
+        responseMsg = response.responseMsg
+
+        if (responseType == "detection"){
+
+            if (responseMsg.label != "nothing"){
+                console.log("SOMETHING DETECTED")
+            } else {
+                console.log("NOTHING DETECTED")
+            }
+
+        } else if (responseType == "capture"){
+            // DRAW IMAGE ONTO CANVAS
+        } else if (responseType == "success"){
+            console.log(responseMsg)
+        }
+
+    })
+    .catch(error => {
+        console.log(error);
+    });
+
+    }
+
+
+var c = document.getElementById("videoStreamCanvas");
+var ctx = c.getContext("2d");
+ctx.beginPath();
+ctx.rect(90, 25, 120, 100);
+ctx.strokeStyle = "red";
+ctx.stroke();
+
+ctx.strokeStyle = "blue";
+ctx.stroke();
+
+let takeImage = document.getElementById('takeImage');
+let canvasWithKeyboard = document.getElementById('canvasWithKeyboard');
+let videoStreamDiv = document.getElementById('videoStreamDiv');
+
+let submitForm = document.getElementById('submitForm');
+let subheading = document.getElementById('subheading');
+let heading = document.getElementById('heading');
+let keyboard = document.getElementById('keyboard');
+
+
+takeImage.addEventListener("click", function(){           
+    hiddenCanvas.getContext('2d').drawImage(video, 0, 0, 450, 450);
+    let imgURL = hiddenCanvas.toDataURL('image/jpg', 1);
+    videoStreamDiv.style.display = "none";
+    submitForm.style.display = "block";
+    subheading.style.display = "none";
+    heading.innerHTML = "What is it?";
+    
+    fetchText("save", {"image":imgURL, "fileName":"image_capture.jpg"})
+    box.style.display = "block";
+    canvasWithKeyboard.getContext('2d').drawImage(video, 0, 0, 450, 450);
+    canvasWithKeyboard.style.display = "block";
+    takeImage.style.display = "none";
+    keyboard.style.display = "block";
+});
+
+
+
+
+</script>
+
+
+{% endblock %}

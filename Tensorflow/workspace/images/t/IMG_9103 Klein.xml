@@ -1,0 +1,26 @@
+<annotation>
+	<folder>images</folder>
+	<filename>IMG_9103 Klein.jpeg</filename>
+	<path>/Users/annamilenapapanakli/Documents/Try5/TFODCourse/src/Tensorflow/workspace/images/images/IMG_9103 Klein.jpeg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>320</width>
+		<height>320</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>minion</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>14</xmin>
+			<ymin>121</ymin>
+			<xmax>159</xmax>
+			<ymax>273</ymax>
+		</bndbox>
+	</object>
+</annotation>

@@ -1,0 +1,176 @@
+{% extends "video-template.html" %}
+{% block page_name %}29-PERSPECTIVE{% endblock %}
+
+{% block row1col1 %}
+<div id="imagesDiversified" style="display: none; margin-top: 32px; color: black; filter: drop-shadow(2px 2px 4px #1f1f1f);">
+    <div class="row card-deck" style="margin-left: 80px; margin-right: 80px;">   
+        <div class="card" style="width: 160px">
+            <a class="card-block stretched-link text-decoration-none"></a> 
+                <img class="card-img-top" id="original_image" style="height: 120px;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Your Image</h5>
+                </div>
+        </div>          
+        <div class="card" style="width: 160px">
+            <a class="card-block stretched-link text-decoration-none"></a> 
+                <img class="card-img-top" id="position2" style="height: 120px;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Perspective 2</h5>
+                </div>
+        </div>
+        <div class="card" style="width: 160px">
+            <a class="card-block stretched-link text-decoration-none" id="mirrored at y"></a> 
+                <img class="card-img-top" id="position3" style="height: 120px;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Perspective 3</h5>
+                </div>
+        </div>  
+        <div class="card" style="width: 160px">
+            <a class="card-block stretched-link text-decoration-none" id="rotated 90"></a>
+                <img class="card-img-top" id="position4" style="height: 120px; width: 160;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Perspective 4</h5>
+                </div>
+        </div>
+        <div class="card" style="width: 160px">
+            <a class="card-block stretched-link text-decoration-none" id="rotated 180"></a>
+                <img class="card-img-top" id="position5" style="height: 120px;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Perspective 5</h5>
+                </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block form_input %}
+<input type="hidden" name="answer" value="30">
+{% endblock %}
+{% block form_button %}
+<button id="button" type="submit" class="btn btn-light" style="display: none;">
+    <div>
+        <img style="height:64px; padding: 12px" src="../static/arrow.svg">
+    </div>
+</button>
+{% endblock %}
+
+{% block regular_button %}
+<button id="takeImage" class="btn btn-light buttonStyle">
+    <div>
+        <img style="width: 80px; height:80px; padding: 12px" src="../static/camera1.svg">
+    </div>
+    <div>
+        Take Image        
+    </div>
+       
+</button>
+{% endblock %}
+
+{% block script %}
+<script>
+
+let fetch_from_url = '/getinformation';
+
+async function fetchText(msg_type, data){
+        
+        console.log("REQUEST SENT")
+    
+        fetch(fetch_from_url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+                
+            body: JSON.stringify({"test":"test1", "type":msg_type, "data":data})
+            
+        }).then(function(response) {
+    
+                return response.json();
+    
+        }).then(response => {
+            
+            console.log("RESPONSE RECEIVED")
+            console.log(response);
+    
+            msg_type = response["type"];
+            data = response["data"];
+    
+            if (msg_type == "diversified_images_positions"){
+                console.log("RECEIVING DIVERSIFIED IMAGES")
+     
+                flip_x = data[0];
+                flip_y = data[1];
+                rot90 = data[2];
+                rot180 = data[3];
+                zoomed = data[4];
+                original = data[5];
+                updateImages(original, flip_x, flip_y, rot90, rot180, zoomed);               
+    
+            } else if (msg_type == "capture"){
+                // DRAW IMAGE ONTO CANVAS
+            } else if (msg_type == "success"){
+                console.log(data)
+            }
+    
+        })
+            .catch(error => {
+            console.log(error);
+        });
+    
+    }
+    
+
+    let takeImage = document.getElementById('takeImage');
+    let hiddenCanvasToShow = document.getElementById('hiddenCanvasToShow');
+    let videoStreamDiv = document.getElementById('videoStreamDiv');
+    let text = document.getElementById('text');
+    let heading = document.getElementById('heading');
+    heading.style.display ="none";
+
+
+    takeImage.addEventListener("click", function(){      
+        text.style.display = "none";     
+        hiddenCanvas.getContext('2d').drawImage(video, 0, 0, 450, 450);
+        let imgURL = hiddenCanvas.toDataURL('image/jpg', 1);
+        videoStreamDiv.style.display = "none";
+        console.log(imgURL)
+        //fetchText("save", {"image":imgURL, "fileName":"generate_positions.jpg"})
+        takeImage.style.display = "none";
+        heading.style.display ="block";
+        heading.innerHTML = "I can make a few more with this!";
+        fetchText("calculate", {"image":imgURL, "type":"positions", "fileName":"generate_positions.jpg"}) //TODO: CHANGE THE CALCULATION TYPE
+
+    });
+
+    // DIVERSIFIED IMAGES
+    var original_image= document.getElementById("original_image");
+    var position2= document.getElementById("position2");
+    var position3= document.getElementById("position3");
+    var position4= document.getElementById("position4");
+    var position5= document.getElementById("position5");
+    var imagesDiversified= document.getElementById("imagesDiversified");
+    var button= document.getElementById("button");
+
+    async function updateImages(original, flip_x, flip_y, rot90, rot180, zoomed){
+        imagesDiversified.style.display = "block";
+        original_image.src = "data:image/png;base64," +  original;
+        //progressBar.style.width = "10%";
+        await new Promise(resolve => setTimeout(resolve, 500));
+        //progressBar.style.width = "20%";
+        position2.src = "data:image/png;base64," +  flip_x;
+        await new Promise(resolve => setTimeout(resolve, 600));
+        //progressBar.style.width = "40%";
+        position3.src = "data:image/png;base64," +  flip_y;
+        await new Promise(resolve => setTimeout(resolve, 400));
+        //progressBar.style.width = "60%";
+        position4.src = "data:image/png;base64," +  rot90;
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        //progressBar.style.width = "80%";
+        position5.src = "data:image/png;base64," +  rot180;
+        await new Promise(resolve => setTimeout(resolve, 300));
+        //progressBar.style.width = "100%";
+
+        button.style.display = "block";
+    }
+</script>
+{% endblock %}

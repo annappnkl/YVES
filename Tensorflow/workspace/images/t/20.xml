@@ -1,0 +1,26 @@
+<annotation>
+	<folder>train</folder>
+	<filename>20.png</filename>
+	<path>/Users/annamilenapapanakli/Documents/Try5/TFODCourse/src/Tensorflow/workspace/images/train/20.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1374</width>
+		<height>1362</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>car</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>396</xmin>
+			<ymin>52</ymin>
+			<xmax>1340</xmax>
+			<ymax>523</ymax>
+		</bndbox>
+	</object>
+</annotation>

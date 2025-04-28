@@ -1,0 +1,190 @@
+{% extends "video-template.html" %}
+{% block page_name %}Test{% endblock %}
+
+
+{% block form_input %}
+<input type="hidden" name="answer" value="22">
+{% endblock %}
+{% block form_button %}
+<button id="button" type="submit" class="btn btn-light" style="display: none;">
+    <div>
+        <img style="height:64px; padding: 12px" src="../static/arrow.svg">
+    </div>
+</button>
+{% endblock %}
+
+
+{% block script %}
+<script>
+var heading = document.getElementById("heading");
+heading.style.display = "none";
+
+let fetch_from_url = '/testFetch';
+
+var video = document.getElementById("videoStreamElement")
+var text = document.getElementById("text");
+var button = document.getElementById("button");
+
+video.addEventListener("play", detectObject);
+
+function detectObject(){
+video._updateInterval = setInterval(() => {
+    hiddenCanvas.getContext('2d').drawImage(video, 0, 0, 450, 450);
+        let imgURL = hiddenCanvas.toDataURL('image/jpg', 1);
+        fetchText("detect", {"image":imgURL})
+    }, 1000);
+}
+
+async function fetchText(type, msg){
+  
+    fetch(fetch_from_url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+                
+        body: JSON.stringify({"requestType":type, "requestMsg":msg})
+            
+    }).then(function(response) {
+            
+        return response.json();
+            
+    }).then(response => {
+        response_type = response.responseType;
+        response_msg = response.responseMsg
+
+        logging("RESPONSE RECEIVED", response);
+
+        x = response_msg.x;
+        y = response_msg.y;
+        x_old = response_msg.x_old;
+        y_old = response_msg.y_old;
+        confidence = response_msg.custom_detection_confidence;
+        label = response_msg.userInput
+        language = response_msg.language
+
+        percentage = Math.trunc(confidence*100)
+        
+        if (percentage > 100){
+            percentage = 100;
+        }
+
+        labelText = label + " " + percentage + " %";  
+
+        if (x > x_old+40 || x < x_old-40 || y > y_old+25 || y < y_old-25 ){
+
+            console.log("OBJECT MOVED") //TODO: LOG THE MOVEMENT?
+            removeFromCanvas();
+            switch (language){
+                case "en":
+                    text.innerHTML = "I only recognise it in the exact version you showed it to me at.<br>That's because I need to learn more about it.";
+                    break;
+                    case "de":
+                    text.innerHTML = "TODO: DE";
+                    break;
+                case "rus":
+                    text.innerHTML = "TODO: RUS";
+                    break;
+                case "pol":
+                    text.innerHTML = "TODO: POL";
+                    break;
+            }         
+            button.style.display = "block";
+
+        } else { 
+            drawOnCanvas(labelText, x, y);
+        }
+                
+        return response_msg
+
+    })
+        .catch(error => {
+        console.log(error);
+    });
+
+}
+
+
+function drawOnCanvas(labelText, x, y){
+
+    x = x-48
+    y = y-100
+
+    console.log(document.getElementById("DetectionText"))
+        
+    if (document.getElementById("DetectionText") == null){
+        var svgNS = "http://www.w3.org/2000/svg";
+
+        // LABEL AND CONFIDENCE
+        var newText = document.createElementNS(svgNS,"text");
+        newText.setAttributeNS(null,"x",x);     
+        newText.setAttributeNS(null,"y",y);
+        newText.setAttributeNS(null,"fill","#000000"); 
+        newText.setAttributeNS(null,"font-size","28");
+        newText.setAttributeNS(null,"id","DetectionText"); 
+
+        // BORDER
+        var newRect = document.createElementNS(svgNS,"rect");
+        newRect.setAttributeNS(null,"x",x-8);     
+        newRect.setAttributeNS(null,"y",y);
+        newRect.setAttributeNS(null,"width","220"); 
+        newRect.setAttributeNS(null,"height","220"); 
+        newRect.setAttributeNS(null,"fill-opacity","0");
+        newRect.setAttributeNS(null,"stroke","#FFFFFF");
+        newRect.setAttributeNS(null,"stroke-width","3");
+        newRect.setAttributeNS(null, "stroke-dasharray", "0,220,440" );    
+        newRect.setAttributeNS(null,"id","DetectionRect");
+
+        // BORDER
+        var newRect2 = document.createElementNS(svgNS,"rect");
+        newRect2.setAttributeNS(null,"x",x-8);     
+        newRect2.setAttributeNS(null,"y",y-44);
+        newRect2.setAttributeNS(null,"width","220"); 
+        newRect2.setAttributeNS(null,"height","50"); 
+        newRect2.setAttributeNS(null,"fill","#FFFFFF");
+        newRect2.setAttributeNS(null,"stroke","#FFFFFF");
+        newRect2.setAttributeNS(null,"stroke-width","3"); 
+        newRect2.setAttributeNS(null,"id","DetectionRect2");
+        
+
+        var textNode = document.createTextNode(labelText);
+        newText.appendChild(textNode);
+        document.getElementById("videoStreamSVG").appendChild(newRect2);
+        document.getElementById("videoStreamSVG").appendChild(newText);
+        document.getElementById("videoStreamSVG").appendChild(newRect);
+        
+    } else {
+        var newText = document.getElementById("DetectionText");
+        newText.setAttributeNS(null,"x",x);     
+        newText.setAttributeNS(null,"y",y); 
+        newText.innerHTML = labelText;
+
+        var newRect = document.getElementById("DetectionRect");
+        newRect.setAttributeNS(null,"x",x-8);     
+        newRect.setAttributeNS(null,"y",y); 
+
+        var newRect2 = document.getElementById("DetectionRect2");
+        newRect2.setAttributeNS(null,"x",x-8);     
+        newRect2.setAttributeNS(null,"y",y-44); 
+    }
+}
+
+function removeFromCanvas(){
+    if (document.getElementById("DetectionText") != null){
+        var newText = document.getElementById("DetectionText");
+        document.getElementById("videoStreamSVG").removeChild(newText)
+
+        var newRect = document.getElementById("DetectionRect");
+        document.getElementById("videoStreamSVG").removeChild(newRect)
+
+        var newRect2 = document.getElementById("DetectionRect2");
+        document.getElementById("videoStreamSVG").removeChild(newRect2)
+};
+}
+
+</script>
+{% endblock %}
+
+
+
+

@@ -1,0 +1,20 @@
+item { 
+	name:'car'
+	id:1
+}
+item { 
+	name:'minion'
+	id:2
+}
+item { 
+	name:'rack'
+	id:3
+}
+item { 
+	name:'mixer'
+	id:4
+}
+item { 
+	name:'sandwich'
+	id:5
+}

@@ -1,0 +1,146 @@
+{% extends "video-template.html" %}
+{% block page_name %}26-ROTATIONS{% endblock %}
+
+{% block form_input %}
+<input type="hidden" name="answer" value="27">
+{% endblock %}
+{% block form_button %}
+<button id="button" type="submit" class="btn btn-light" style="display: none;">
+    <div>
+        <img style="height:64px; padding: 12px" src="../static/arrow.svg">
+    </div>
+</button>
+{% endblock %}
+
+{% block regular_button %}
+<button id="takeImage" class="btn btn-light buttonStyle">
+    <div>
+        <img style="width: 80px; height:80px; padding: 12px" src="../static/camera1.svg">
+    </div>
+    <div>
+        Take Image        
+    </div>
+       
+</button>
+{% endblock %}
+
+{% block script %}
+<script>
+
+let fetch_from_url = '/testFetch';
+
+async function fetchText(type, msg){
+  
+  fetch(fetch_from_url, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+              
+      body: JSON.stringify({"requestType":type, "requestMsg":msg})
+          
+  }).then(function(response) {
+          
+      return response.json();
+          
+  }).then(response => {
+      response_type = response.responseType;
+      response_msg = response.responseMsg
+
+      logging("RESPONSE RECEIVED", response);
+
+
+      if (response_type == "detection"){
+
+          x = response_msg.x;
+          y = response_msg.y;
+          x_old = response_msg.x_old;
+          y_old = response_msg.y_old;
+          confidence = response_msg.confidence;
+          label = response_msg.userInput
+          language = response_msg.language
+          percentage = Math.trunc(confidence*100)
+          
+          if (percentage > 100){
+              percentage = 100;
+          }
+
+          labelText = label + " " + percentage + " %";  
+
+
+      } else if (response_type == "diversified_images_roation"){
+          console.log("DIVERSIFIED IMAGES RECEIVED")
+
+          flip_x = response_msg[0];
+          flip_y = response_msg[1];
+          rot90 = response_msg[2];
+          rot180 = response_msg[3];
+
+          updateImages(flip_x, flip_y, rot90, rot180);               
+  
+      }  
+      return response_msg
+
+  })
+      .catch(error => {
+      console.log(error);
+  });
+
+}
+        
+        console.log("REQUEST SENT")
+    
+        fetch(fetch_from_url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+                
+            body: JSON.stringify({"test":"test1", "type":msg_type, "data":data})
+            
+        }).then(function(response) {
+    
+                return response.json();
+    
+        }).then(response => {
+            
+            console.log("RESPONSE RECEIVED")
+            console.log(response);
+    
+            msg_type = response["type"];
+            data = response["data"];
+    
+            if (msg_type == "diversified_images_positions"){
+                console.log("RECEIVING DIVERSIFIED IMAGES")
+     
+                flip_x = data[0];
+                flip_y = data[1];
+                rot90 = data[2];
+                rot180 = data[3];
+
+                updateImages(flip_x, flip_y, rot90, rot180);               
+    
+            } else if (msg_type == "capture"){
+                // DRAW IMAGE ONTO CANVAS
+            } else if (msg_type == "success"){
+                console.log(data)
+            }
+    
+        })
+            .catch(error => {
+            console.log(error);
+        });
+    
+    }
+    
+
+    let takeImage = document.getElementById('takeImage');
+    let hiddenCanvasToShow = document.getElementById('hiddenCanvasToShow');
+    let videoStreamDiv = document.getElementById('videoStreamDiv');
+    let text = document.getElementById('text');
+    let heading = document.getElementById('heading');
+    heading.style.display ="none";
+
+
+</script>
+{% endblock %}

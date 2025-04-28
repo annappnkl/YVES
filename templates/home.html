@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block page_name %}Language{% endblock %}
+{% block page_heading %}Hi! I'm YVES, thanks for stopping by.{% endblock %}
+{% block page_subtext %}Would you like to teach me an object? Pick a language to start{% endblock %}
+
+{% block page_block3 %}
+
+<div class="row card-deck" id="languages" style="margin-top: 96px;  color: black; filter: drop-shadow(2px 2px 4px #1f1f1f)">       
+    <div class="card zoom" style="width: 160px;">
+        <a class="card-block stretched-link text-decoration-none" id="english"></a> 
+            <img src="../static/english-flag.png" class="card-img-top">
+            <div class="card-body">
+                <h5 class="card-title" style="text-align: center; font-family: 'Montserrat', sans-serif; font-weight: 500;">English</h5>
+            </div>
+    </div>        
+    <div class="card zoom" style="width: 160px; display: none;">
+        <a class="card-block stretched-link text-decoration-none" id="german"></a> 
+            <img src="../static/german-flag.png" class="card-img-top">
+            <div class="card-body">
+                <h5 class="card-title" style="text-align: center;font-family: 'Montserrat', sans-serif; font-weight: 500;">Deutsch</h5>
+            </div>
+    </div>
+    <div class="card zoom" style="width: 160px; display: none;">
+        <a class="card-block stretched-link text-decoration-none" id="russian"></a>
+            <img src="../static/russian-flag.png" class="card-img-top">
+            <div class="card-body">
+                <h5 class="card-title" style="text-align: center;font-family: 'Montserrat', sans-serif; font-weight: 500;">Русский</h5>
+            </div>
+    </div>
+    <div class="card zoom" style="width: 160px; display: none;">
+        <a class="card-block stretched-link text-decoration-none" id="polish"></a>
+            <img src="../static/polish-flag.png" class="card-img-top">
+            <div class="card-body">
+                <h5 class="card-title" style="text-align: center;font-family: 'Montserrat', sans-serif; font-weight: 500;">Polski</h5>
+            </div>
+    </div>
+</div>
+
+<!-- form - post method for language pick -->
+<form action="#" method="post" id="form">
+    <p>
+        <input id="form_lang" type="hidden" name="language" value="default"/>
+    </p>
+</form>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+//  submit post request language pick
+
+const card_en = document.getElementById('english');
+const card_de = document.getElementById('german');
+const card_rus = document.getElementById('russian');
+const card_pol = document.getElementById('polish');
+const form = document.getElementById('form');
+const form_lang = document.getElementById('form_lang');
+
+card_en.addEventListener("click", function(){
+
+    form_lang.setAttribute('value', 'en')
+    form.submit();
+
+});
+
+card_de.addEventListener("click", function(){
+
+form_lang.setAttribute('value', 'de')
+form.submit();
+
+});
+
+card_rus.addEventListener("click", function(){
+
+form_lang.setAttribute('value', 'rus')
+form.submit();
+
+});
+
+card_pol.addEventListener("click", function(){
+
+form_lang.setAttribute('value', 'pol')
+form.submit();
+
+});
+
+</script>
+{% endblock %}

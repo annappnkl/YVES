@@ -1,0 +1,332 @@
+{% extends "video-template.html" %}
+{% block page_name %}12{% endblock %}
+
+{% block page_text %}Test my learning by moving the object around a bit!{% endblock %}
+
+
+{% block form_input %}
+<input type="hidden" name="answer" value="13">
+{% endblock %}
+{% block form_button %}
+<button id="button" type="submit" class="btn btn-light" style="display: none;">
+    <div>
+        <img style="height:64px; padding: 12px" src="../static/arrow.svg">
+    </div>
+</button>
+{% endblock %}
+
+{% block regular_button %}
+<button id="diversifyImage" class="btn btn-light">
+    <img style="height:64px; padding: 12px" src="../static/arrow.svg">
+</button>
+{% endblock %}
+
+{% block row1col1 %}
+<div id="imagesDiversified" style="display: none; margin-top: 32px; color: black; filter: drop-shadow(2px 2px 4px #1f1f1f);">
+    <div class="row card-deck" style="margin-left: 80px; margin-right: 80px;">   
+                
+        <div class="card">
+            <a class="card-block stretched-link text-decoration-none"></a> 
+                <img class="card-img-top" id="position2" style="width: 100%;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Position</h5>
+                </div>
+        </div>
+        <div class="card">
+            <a class="card-block stretched-link text-decoration-none" id="mirrored at y"></a> 
+                <img class="card-img-top" id="position3" style="width: 100%;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Perspective</h5>
+                </div>
+        </div>  
+        <div class="card">
+            <a class="card-block stretched-link text-decoration-none" id="rotated 90"></a>
+                <img class="card-img-top" id="position4" style="width: 100%;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Rotation</h5>
+                </div>
+        </div>
+        <div class="card">
+            <a class="card-block stretched-link text-decoration-none" id="rotated 180"></a>
+                <img class="card-img-top" id="position5" style="width: 100%;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Zoom</h5>
+                </div>
+        </div>
+    </div>
+</div>
+<div id="block" style="display: block;"></div>
+{% endblock %}
+
+
+{% block script %}
+<script>
+var heading = document.getElementById("heading");
+heading.style.display = "none";
+
+let fetch_from_url = '/testFetch';
+
+var video = document.getElementById("videoStreamElement")
+var text = document.getElementById("text");
+var button = document.getElementById("button");
+
+video.addEventListener("play", detectObject);
+
+var block = document.getElementById("block");
+
+
+function detectObject(){
+video._updateInterval = setInterval(() => {
+
+        hiddenCanvas.getContext('2d').drawImage(video, 0, 0, 450, 450);
+        let imgURL = hiddenCanvas.toDataURL('image/jpg', 1);
+        if (block.style.display == "block"){
+            fetchText("detect", {"image":imgURL})
+        } else {
+            console.log("Stopping detection")
+        }
+    }, 1000);
+}
+
+async function fetchText(type, msg){
+  
+    fetch(fetch_from_url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+                
+        body: JSON.stringify({"requestType":type, "requestMsg":msg})
+            
+    }).then(function(response) {
+            
+        return response.json();
+            
+    }).then(response => {
+        response_type = response.responseType;
+        response_msg = response.responseMsg
+
+        logging("RESPONSE RECEIVED", response);
+
+
+        if (response_type == "detection"){
+
+            x = response_msg.x;
+            y = response_msg.y;
+            x_old = response_msg.x_old;
+            y_old = response_msg.y_old;
+            confidence = response_msg.custom_detection_confidence;
+            label = response_msg.userInput;
+            language = response_msg.language;
+            percentage = Math.trunc(confidence*100);
+            customDet = response_msg.custom_detection_name
+            firstDet = response_msg.firstDet
+            
+            if (percentage > 100){
+                percentage = 100;
+            }
+
+            labelText = label + " " + percentage + " %";  
+
+            x_diff = Math.abs(x_old-x)
+            y_diff = Math.abs(y_old-y)
+
+            if (customDet == firstDet ){
+
+                if (x_diff > 30 || y_diff > 30) { 
+
+                console.log("OBJECT MOVED") //TODO: LOG THE MOVEMENT?
+                removeFromCanvas();
+                    switch (language){
+                        case "en":
+                            text.innerHTML = "I don't recognise it everywhere.<br>That's because I only learned to recognise it at the position you showed it to me at. But I can do better!";
+                            break;
+                            case "de":
+                            text.innerHTML = "TODO: DE";
+                            break;
+                        case "rus":
+                            text.innerHTML = "TODO: RUS";
+                            break;
+                        case "pol":
+                            text.innerHTML = "TODO: POL";
+                            break;
+                    }  
+                } else {
+                    drawOnCanvas(labelText, x, y);
+                }
+            }
+            else  if (customDet != firstDet) {
+                    drawOnCanvas(customDet, x, y);
+                    switch (language){
+                        case "en":
+                            text.innerHTML = "I recognise this! I learned this before.";
+                            break;
+                            case "de":
+                            text.innerHTML = "TODO: DE";
+                            break;
+                        case "rus":
+                            text.innerHTML = "TODO: RUS";
+                            break;
+                        case "pol":
+                            text.innerHTML = "TODO: POL";
+                            break;
+                    }     
+            } 
+
+        } else if (response_type == "diversified_images"){
+            console.log("DIVERSIFIED IMAGES RECEIVED")
+
+            flip_x = response_msg[0];
+            flip_y = response_msg[1];
+            rot90 = response_msg[2];
+            rot180 = response_msg[3];
+            zoomed = response_msg[4];
+            original = response_msg[5];
+
+            updateImages(original, flip_x, flip_y, rot90, rot180);               
+    
+        }  
+        return response_msg
+
+    })
+        .catch(error => {
+        console.log(error);
+    });
+
+}
+
+
+function drawOnCanvas(labelText, x, y){
+
+    x = x-48
+    y = y-100
+
+    console.log(document.getElementById("DetectionText"))
+        
+    if (document.getElementById("DetectionText") == null){
+        var svgNS = "http://www.w3.org/2000/svg";
+
+        // LABEL AND CONFIDENCE
+        var newText = document.createElementNS(svgNS,"text");
+        newText.setAttributeNS(null,"x",x);     
+        newText.setAttributeNS(null,"y",y);
+        newText.setAttributeNS(null,"fill","#000000"); 
+        newText.setAttributeNS(null,"font-size","28");
+        newText.setAttributeNS(null,"id","DetectionText"); 
+
+        // BORDER
+        var newRect = document.createElementNS(svgNS,"rect");
+        newRect.setAttributeNS(null,"x",x-8);     
+        newRect.setAttributeNS(null,"y",y);
+        newRect.setAttributeNS(null,"width","220"); 
+        newRect.setAttributeNS(null,"height","220"); 
+        newRect.setAttributeNS(null,"fill-opacity","0");
+        newRect.setAttributeNS(null,"stroke","#FFFFFF");
+        newRect.setAttributeNS(null,"stroke-width","3");
+        newRect.setAttributeNS(null, "stroke-dasharray", "0,220,440" );    
+        newRect.setAttributeNS(null,"id","DetectionRect");
+
+        // BORDER
+        var newRect2 = document.createElementNS(svgNS,"rect");
+        newRect2.setAttributeNS(null,"x",x-8);     
+        newRect2.setAttributeNS(null,"y",y-44);
+        newRect2.setAttributeNS(null,"width","220"); 
+        newRect2.setAttributeNS(null,"height","50"); 
+        newRect2.setAttributeNS(null,"fill","#FFFFFF");
+        newRect2.setAttributeNS(null,"stroke","#FFFFFF");
+        newRect2.setAttributeNS(null,"stroke-width","3"); 
+        newRect2.setAttributeNS(null,"id","DetectionRect2");
+        
+
+        var textNode = document.createTextNode(labelText);
+        newText.appendChild(textNode);
+        document.getElementById("videoStreamSVG").appendChild(newRect2);
+        document.getElementById("videoStreamSVG").appendChild(newText);
+        document.getElementById("videoStreamSVG").appendChild(newRect);
+        
+    } else {
+        var newText = document.getElementById("DetectionText");
+        newText.setAttributeNS(null,"x",x);     
+        newText.setAttributeNS(null,"y",y); 
+        newText.innerHTML = labelText;
+
+        var newRect = document.getElementById("DetectionRect");
+        newRect.setAttributeNS(null,"x",x-8);     
+        newRect.setAttributeNS(null,"y",y); 
+
+        var newRect2 = document.getElementById("DetectionRect2");
+        newRect2.setAttributeNS(null,"x",x-8);     
+        newRect2.setAttributeNS(null,"y",y-44); 
+    }
+}
+
+function removeFromCanvas(){
+    if (document.getElementById("DetectionText") != null){
+        var newText = document.getElementById("DetectionText");
+        document.getElementById("videoStreamSVG").removeChild(newText)
+
+        var newRect = document.getElementById("DetectionRect");
+        document.getElementById("videoStreamSVG").removeChild(newRect)
+
+        var newRect2 = document.getElementById("DetectionRect2");
+        document.getElementById("videoStreamSVG").removeChild(newRect2)
+};
+}
+
+
+
+var diversifyImage = document.getElementById("diversifyImage");
+var heading = document.getElementById("heading");
+
+diversifyImage.addEventListener("click", function(){   
+ 
+    imagesDiversified.style.display = "block";
+    videoStreamDiv.style.display = "none";
+
+    detectedObjectLabel.style.display = "none";
+    heading.style.height = "80px";
+    heading.innerHTML = "I can change the image, to get a different perspective,<br>a different angle and a different scale.";
+    heading.style.display = "block";
+    text.hidden = true;
+
+    diversifyImage.style.display = "none";
+
+    block.style.display = "none";
+
+    fetchText("calculate", {"type":"get_more_images", "fileName":"image_capture.jpg"});
+});
+
+    // DIVERSIFIED IMAGES
+    var original_image= document.getElementById("original_image");
+    var position2= document.getElementById("position2");
+    var position3= document.getElementById("position3");
+    var position4= document.getElementById("position4");
+    var position5= document.getElementById("position5");
+    var imagesDiversified= document.getElementById("imagesDiversified");
+    var button= document.getElementById("button");
+
+    async function updateImages(original, flip_x, flip_y, rot90, rot180, zoomed){
+        imagesDiversified.style.display = "block";
+        //original_image.src = "data:image/png;base64," +  original;
+        //progressBar.style.width = "10%";
+        //await new Promise(resolve => setTimeout(resolve, 500));
+        //progressBar.style.width = "20%";
+        position2.src = "data:image/png;base64," +  flip_x;
+        await new Promise(resolve => setTimeout(resolve, 600));
+        //progressBar.style.width = "40%";
+        position3.src = "data:image/png;base64," +  flip_y;
+        await new Promise(resolve => setTimeout(resolve, 400));
+        //progressBar.style.width = "60%";
+        position4.src = "data:image/png;base64," +  rot90;
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        //progressBar.style.width = "80%";
+        position5.src = "data:image/png;base64," +  rot180;
+        await new Promise(resolve => setTimeout(resolve, 300));
+        //progressBar.style.width = "100%";
+
+        button.style.display = "block";
+    }
+
+</script>
+{% endblock %}
+

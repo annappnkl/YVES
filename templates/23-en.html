@@ -1,0 +1,179 @@
+{% extends "video-template.html" %}
+{% block page_name %}23{% endblock %}
+
+{% block form_input %}
+<input type="hidden" name="answer" value="24">
+{% endblock %}
+{% block form_button %}
+<button id="button" type="submit" class="btn btn-light" style="display: none;">
+    <div>
+        <img style="height:64px; padding: 12px" src="../static/arrow.svg">
+    </div>
+</button>
+{% endblock %}
+
+
+{% block row1col1 %}
+<div id="imagesDiversified" style="margin-top: 64px; color: black; filter: drop-shadow(2px 2px 4px #1f1f1f);">
+    <div class="row card-deck" style="margin-left: 80px; margin-right: 80px;">   
+                
+        <div class="card">
+            <a class="card-block stretched-link text-decoration-none"></a> 
+                <img class="card-img-top" id="position2" style="width: 100%; display: none;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Position 1</h5>
+                </div>
+        </div>
+        <div class="card">
+            <a class="card-block stretched-link text-decoration-none" id="mirrored at y"></a> 
+                <img class="card-img-top" id="position3" style="width: 100%; display: none;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Position 2</h5>
+                </div>
+        </div>  
+        <div class="card">
+            <a class="card-block stretched-link text-decoration-none" id="rotated 90"></a>
+                <img class="card-img-top" id="position4" style="width: 100%; display: none;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Position 3</h5>
+                </div>
+        </div>
+        <div class="card">
+            <a class="card-block stretched-link text-decoration-none" id="rotated 180"></a>
+                <img class="card-img-top" id="position5" style="width: 100%; display: none;">
+                <div class="card-body">
+                    <h5 class="card-title" style="text-align: center;">Position 4</h5>
+                </div>
+        </div>
+    </div>
+</div>
+<div id="block" style="display: block;"></div>
+{% endblock %}
+
+
+{% block script %}
+<script>
+var heading = document.getElementById("heading");
+
+let fetch_from_url = '/testFetch';
+
+var video = document.getElementById("videoStreamElement")
+var text = document.getElementById("text");
+var button = document.getElementById("button");
+
+var camera = document.getElementById("camera");
+
+camera.style.display = "none";
+
+var block = document.getElementById("block");
+
+
+async function fetchText(type, msg){
+  
+    fetch(fetch_from_url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+                
+        body: JSON.stringify({"requestType":type, "requestMsg":msg})
+            
+    }).then(function(response) {
+            
+        return response.json();
+            
+    }).then(response => {
+        response_type = response.responseType;
+        response_msg = response.responseMsg
+
+        logging("RESPONSE RECEIVED", response);
+
+
+        if (response_type == "detection"){
+
+            x = response_msg.x;
+            y = response_msg.y;
+            x_old = response_msg.x_old;
+            y_old = response_msg.y_old;
+            confidence = response_msg.confidence;
+            label = response_msg.userInput
+            language = response_msg.language
+            percentage = Math.trunc(confidence*100)
+            
+            if (percentage > 100){
+                percentage = 100;
+            }
+
+            labelText = label + " " + percentage + " %";  
+
+
+        } else if (response_type == "diversified_images_positions"){
+            console.log("DIVERSIFIED IMAGES RECEIVED")
+
+            flip_x = response_msg[0];
+            flip_y = response_msg[1];
+            rot90 = response_msg[2];
+            rot180 = response_msg[3];
+            zoomed = response_msg[4];
+            original = response_msg[5];
+
+            updateImages(original, flip_x, flip_y, rot90, rot180);               
+    
+        }  
+        return response_msg
+
+    })
+        .catch(error => {
+        console.log(error);
+    });
+
+}
+
+var heading = document.getElementById("heading");
+
+function diversifyImage(){   
+ 
+    heading.style.height = "80px";
+    heading.innerHTML = "I can perform calculations on the image you took before.<br>Here it is in different Positions.";
+    block.style.display = "none";
+
+    fetchText("calculate", {"type":"positions", "fileName":"image_capture.jpg"});
+}
+diversifyImage();
+
+
+    // DIVERSIFIED IMAGES
+    var position2= document.getElementById("position2");
+    var position3= document.getElementById("position3");
+    var position4= document.getElementById("position4");
+    var position5= document.getElementById("position5");
+    var imagesDiversified= document.getElementById("imagesDiversified");
+    var button= document.getElementById("button");
+
+    async function updateImages(original, flip_x, flip_y, rot90, rot180, zoomed){
+        await new Promise(resolve => setTimeout(resolve, 600));
+        position2.style.display = "block";
+        await new Promise(resolve => setTimeout(resolve, 600));
+        //progressBar.style.width = "20%";
+        position2.src = "data:image/png;base64," +  flip_x;
+        await new Promise(resolve => setTimeout(resolve, 600));
+        //progressBar.style.width = "40%";
+        position3.style.display = "block";
+        position3.src = "data:image/png;base64," +  flip_y;
+        await new Promise(resolve => setTimeout(resolve, 400));
+        //progressBar.style.width = "60%";
+        position4.style.display = "block";
+        position4.src = "data:image/png;base64," +  rot90;
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        //progressBar.style.width = "80%";
+        position5.style.display = "block";
+        position5.src = "data:image/png;base64," +  rot180;
+        await new Promise(resolve => setTimeout(resolve, 300));
+        //progressBar.style.width = "100%";
+
+        button.style.display = "block";
+    }
+
+</script>
+{% endblock %}
+

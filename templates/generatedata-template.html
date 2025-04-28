@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;1,900&display=swap" rel="stylesheet">
+        <link rel="shortcut icon" href="#">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link
+        rel="stylesheet"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+        crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" crossorigin="anonymous" />
+
+        <title>{% block page_name %}{% endblock %}</title>
+        <style>
+            
+            .buttonStyle:hover {
+                transform: scale(1.05); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+            }
+            
+            .grid-container {
+                display: grid;
+                justify-content: center;
+                grid-template-columns: auto auto;
+                margin-top: 32px;
+            }
+            .grid-container > div {
+                text-align: center;
+                font-size: 30px;
+            }
+
+            .svgButton {
+                height: 56px;
+                width: 72px;
+            }
+
+            .buttonStyle{
+                padding: 20px 32px;
+                font-size: 24px;
+                font-family: 'Montserrat', sans-serif;
+                font-weight: 500;
+                filter: drop-shadow(2px 2px 4px #1f1f1f);
+                transition: transform .2s; /* Animation */
+            }
+
+            .bodyDarkmode{
+                background-color: rgb(51, 51, 56);
+                color: white; background-image: url('../static/background.svg');
+                background-repeat: no-repeat;
+                background-size: 100%;
+            }
+
+            .bodyText {
+                text-align: center;
+                font-family: 'Montserrat', sans-serif;
+                font-weight: 600;
+                margin-top: 120px;
+            }
+
+            .subheading {
+                margin-top: 48px;
+                text-align: center;
+            }
+            
+            .pageContent {
+                margin-top: 120px;
+            }
+        
+
+            .margin64 {
+                margin-top: 64px;
+            }
+            .margin32 {
+                margin-top: 32px;
+            }
+
+
+        </style>
+
+    </head>
+    <body class="bodyDarkmode">
+            <div id="pageContent" class="pageContent bodyText">
+                <div id="rowH" class="margin32">
+                    <h1 id="heading" class="heading">
+                        {% block page_heading %}
+                        {% endblock %}
+                    </h1>
+                </div>
+                <div id="rowSH" class="margin32">
+                    <h3 id="subheading" class="subheading pageContent">
+                        {% block page_subtext %}
+                        {% endblock %}
+                    </h3>
+                </div>
+                <div id="row1" class="margin32">
+                    {% block row1 %}
+                    
+                    {% endblock %}
+                </div>
+    
+                <div id="row2" class="margin32">
+                    {% block row2 %}
+                    
+                    {% endblock %}
+                </div>
+                
+                <div id="row3" class="margin32">
+                    {% block row3 %}
+                    
+                    {% endblock %}
+                </div>
+                <div id="cta" class="subheading">
+                    <form action="{{ url_for('handle_forms') }}" method="post">
+                        <p>
+                            {% block form_input %}
+                            {% endblock %}
+                        </p>
+                        <p>
+                            {% block form_button %}
+                            {% endblock %}
+                        </p>
+                    </form>
+            </div>
+        </div>
+            
+        {% block script %}
+        {% endblock %}
+
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"
+        ></script>
+
+        <!--
+        <script
+            type="text/javascript"
+            src="{{ url_for('static', filename='index.js') }}"
+        ></script>
+        -->
+
+
+    </body>
+</html>
