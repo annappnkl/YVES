@@ -4,14 +4,29 @@
 
 This project started in June 2022 and was completed in February 2023
 
-YVES was developed as part of my Bachelor's thesis at the Ludwig-Maximilians-Universität (LMU) Munich, under the Human-Centered Ubiquitous Media group, alongside Prof. Dr. Albrecht Schmidt, Dr. Maximiliane Windl, Prof Dr. Sebastian Feger, Dr. Jakob Karolus, and Prof. Dr. Sven Meyer.
-It was evaluated at a public prelimenary study at the Open Lab Day event at the LMU Munich. It was later on tested and placed in the Copernicus Science Center in Warsaw, Poland. Research results of that exhibition demonstrated that playful interaction successfully improved non-experts’ understanding of AI. Finally, it was further developed by the Ubiquitous Media group in 2023, without me, and placed in the Deutsches Museum, Munich, to further teach young people about AI.
+## 📖 Overview
+
+**YVES** is a playful, tangible AI teaching prototype developed during my Bachelor's thesis at Ludwig-Maximilians-Universität (LMU) Munich under the Human-Centered Ubiquitous Media group.  
+It teaches non-experts — especially young users — fundamental principles of Artificial Intelligence (AI) and Machine Learning (ML) through hands-on interaction with an object detection system.
+
+YVES was first evaluated at LMU's Open Lab Day and later exhibited at the Copernicus Science Centre (Warsaw, Poland), demonstrating that playful interaction can significantly improve AI understanding among the public.  
+In 2023, the Ubiquitous Media group further developed the system and deployed it at the Deutsches Museum (Munich).
 
 ## About
 
-YVES is a tangible, playful prototype designed to teach non-experts — especially young users — key principles of Artificial Intelligence (AI) and Machine Learning (ML) through hands-on interaction.
-It focuses on the concepts of object detection and dataset quality, using a simulated training and testing pipeline in an engaging, museum-style setting. The system includes three pre-trained object detection models which are used at each interaction step to demonstrate the development of an object detection model to the user.
-Built with **Flask**, **TensorFlow**, and **YOLO**, YVES allows users to create an object detection model in an interactive and fun way, thereby teaching themselves basic principles of how AI systems learn from data and what makes data "good" training data.
+Through a museum-style experience, YVES lets users:
+- Create their own training datasets.
+- Simulate AI model training.
+- Test object detection performance.
+- Understand why diversity and quality in data are critical for AI success.
+
+Built with **Flask**, **TensorFlow**, and **YOLO**, YVES uses pre-trained object detection models to demonstrate how AI systems learn — and why they sometimes fail.
+
+## 🎯 Motivation
+
+Despite AI's growing influence in daily life, public understanding of its workings remains limited.  
+YVES addresses this gap by offering an interactive, gamified machine teaching experience that transforms users into active AI "teachers" — building better awareness of training data, learning processes, and AI system limitations.
+
 
 ## 🧪 Features
 
@@ -47,17 +62,6 @@ Two interaction types:
 
 - Real-time training (if computational constraints are overcome).
 - More AI principles (e.g., bounding box accuracy, adversarial examples).
-
-## 🎯 Motivation
-
-Despite AI systems influencing daily life (social media feeds, face recognition, spam filters), most people lack an understanding of how they work.
-YVES addresses this gap by providing an approachable and playful experience where users:
-Create their own datasets.
-Simulate training an AI model.
-Test and experience model performance.
-Understand why diversity in training data matters.
-Recognize limitations of AI systems (e.g., perspective issues).
-Through interactive machine teaching combined with gamification principles, YVES turns passive users into active AI "teachers."
 
 ## Author
 
